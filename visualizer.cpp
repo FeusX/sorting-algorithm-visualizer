@@ -7,6 +7,7 @@
 using namespace std;
 
 void drawState(vector<int>& vec, SDL_Renderer* renderer, uint16_t red, uint16_t blue, int range_end);
+void selectionSort(vector<int>& vec, SDL_Renderer* renderer, int range_end);
 
 int main()
 {
@@ -36,22 +37,7 @@ int main()
   SDL_CreateWindowAndRenderer(100*10, 100*10, 0, &window, &renderer);
   SDL_RenderSetScale(renderer, 10, 10);
 
-  for(uint16_t i = 0; i < vec.size(); i++)
-  {
-    for(uint16_t j = i; j < vec.size(); j++)
-    {
-      if(vec[j] < vec[i])
-        swap(vec[j], vec[i]);
-      
-          // clear the screen
-      SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-      SDL_RenderClear(renderer);
-
-      drawState(vec, renderer, i, j, range_end);
-      SDL_RenderPresent(renderer);
-      SDL_Delay(10);
-    }
-  }
+  selectionSort(vec, renderer, range_end);
 
   return 0;
 }
@@ -71,5 +57,29 @@ void drawState(vector<int>& vec, SDL_Renderer* renderer, uint16_t red, uint16_t 
     
     SDL_RenderDrawLine(renderer, index, range_end, index, i);
     index += 1;
+  }
+}
+
+void selectionSort(vector<int>& vec, SDL_Renderer* renderer, int range_end)
+{
+  for(uint16_t i = 0; i < vec.size(); i++)
+  {
+    uint16_t min_index = i;
+    
+    for(uint16_t j = i + 1; j < vec.size(); j++)
+    {
+      if(vec[j] < vec[min_index])
+        min_index = j;
+     
+    }
+    if(min_index != i) swap(vec[i], vec[min_index]);
+     
+    // clear the screen
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
+
+    drawState(vec, renderer, i, min_index, range_end);  
+    SDL_RenderPresent(renderer);
+    SDL_Delay(100);
   }
 }
