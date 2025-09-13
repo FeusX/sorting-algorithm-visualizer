@@ -14,9 +14,13 @@ void bubbleSort(vector <int>& vec, SDL_Renderer* renderer, int max_value, int st
 int main()
 {
   SDL_Init(SDL_INIT_VIDEO);
+
   int num_elements, range_start, range_end;
   cout << "Enter number of elements to sort: ";
   cin >> num_elements;
+
+  if(num_elements > 1024)
+    cout << "[WARNING] More than 1024 elements might not visualized as intended." << endl;
 
   cout << "Enter the range start: ";
   cin >> range_start;
@@ -37,26 +41,11 @@ int main()
 
   int stripe_width = WINDOW_WIDTH / num_elements;
 
-  uint8_t algorithm_number;
-  cout << "0-Bubble Sort, 1-Selection Sort" << endl;
-  cout << "Enter the algorithm that you want to visualize: ";
-  cin >> algorithm_number;
-
   SDL_Window* window = nullptr;
   SDL_Renderer* renderer = nullptr;
   SDL_CreateWindowAndRenderer(WINDOW_WIDTH, WINDOW_HEIGHT, 0, &window, &renderer);
 
-  switch (algorithm_number)
-  {
-    case 0:
-      bubbleSort(vec, renderer, range_end, stripe_width);
-      break;
-    case 1:
-      selectionSort(vec, renderer, range_end, stripe_width);
-      break;
-    default:
-      break;
-  }
+  selectionSort(vec, renderer, range_end, stripe_width);
 
   SDL_Delay(2000);
 
