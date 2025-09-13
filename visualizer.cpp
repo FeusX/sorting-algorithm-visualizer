@@ -10,6 +10,9 @@ const int WINDOW_HEIGHT = 768;
 void drawState(const vector<int>& vec, SDL_Renderer* renderer, int highlight_1, int highlight_2, int max_value, int stripe_width);
 void selectionSort(vector<int>& vec, SDL_Renderer* renderer, int max_value, int stripe_width);
 void bubbleSort(vector <int>& vec, SDL_Renderer* renderer, int max_value, int stripe_width);
+void heapMake(vector<int>& vec);
+void siftDown(vector<int>& vec, int start, int end);
+void heapSort(vector<int>& vec, SDL_Renderer* renderer, int max_value, int stripe_width);
 
 int main()
 {
@@ -45,7 +48,9 @@ int main()
   SDL_Renderer* renderer = nullptr;
   SDL_CreateWindowAndRenderer(WINDOW_WIDTH, WINDOW_HEIGHT, 0, &window, &renderer);
 
-  selectionSort(vec, renderer, range_end, stripe_width);
+  //selectionSort(vec, renderer, range_end, stripe_width);
+  //bubbleSort(vec, renderer, range_end, stripe_width);
+  heapSort(vec, renderer, range_end, stripe_width);
 
   SDL_Delay(2000);
 
@@ -117,4 +122,51 @@ void bubbleSort(vector <int>& vec, SDL_Renderer* renderer, int max_value, int st
     }
     i--;
   }while(swapped);  
-} 
+}
+
+
+void heapSort(vector<int>& vec, SDL_Renderer* renderer, int max_value, int stripe_width)
+{
+  heapMake(vec);
+  for (int end = vec.size() - 1; end > 0; --end)
+  {
+    swap(vec[0], vec[end]);
+    siftDown(vec, 0, end);
+    drawState(vec, renderer, 0, end, max_value, stripe_width);
+    SDL_Delay(10);
+  }
+}
+
+void heapMake(vector<int>& vec)
+{
+  int size = vec.size();
+  for (int i = size / 2 - 1; i >= 0; --i)
+  {
+    siftDown(vec, i, size);
+  }
+}
+
+void siftDown(vector<int>& vec, int start, int end)
+{
+  int root = start;
+
+  while (root * 2 + 1 < end)
+  {
+    int child = root * 2 + 1;
+    int swap_idx = root;
+
+    if (vec[swap_idx] < vec[child])
+      swap_idx = child;
+
+    if (child + 1 < end && vec[swap_idx] < vec[child + 1])
+      swap_idx = child + 1;
+
+    if (swap_idx == root)
+      return;
+    else
+    {
+      swap(vec[root], vec[swap_idx]);
+      root = swap_idx;
+    }
+  }
+}
