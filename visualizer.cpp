@@ -13,12 +13,7 @@ void bubbleSort(vector <int>& vec, SDL_Renderer* renderer, int max_value, int st
 
 int main()
 {
-
-if (SDL_Init(SDL_INIT_VIDEO) < 0) 
-{
-  cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << endl;
-  return 1;
-}
+  SDL_Init(SDL_INIT_VIDEO);
   int num_elements, range_start, range_end;
   cout << "Enter number of elements to sort: ";
   cin >> num_elements;
@@ -39,10 +34,6 @@ if (SDL_Init(SDL_INIT_VIDEO) < 0)
   vector<int> vec;
   for(int i = 0; i < num_elements; ++i)
     vec.push_back(dist(gen));
-
-  /*SDL_Window* window = nullptr;
-  SDL_Renderer* renderer = nullptr;
-  SDL_CreateWindowAndRenderer(WINDOW_WIDTH, WINDOW_HEIGHT, 0, &window, &renderer);*/
 
   int stripe_width = WINDOW_WIDTH / num_elements;
 
