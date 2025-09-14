@@ -2,16 +2,18 @@
 #include <SDL2/SDL.h>
 #include <random>
 #include <vector>
+#include <SDL2/SDL_ttf.h>
 using namespace std;
 
 const int WINDOW_WIDTH = 1024;
 const int WINDOW_HEIGHT = 768;
 
-void drawState(const vector<int>& vec, SDL_Renderer* renderer, int highlight_1, int highlight_2, int max_value, int stripe_width);
-void selectionSort(vector<int>& vec, SDL_Renderer* renderer, int max_value, int stripe_width);
-void bubbleSort(vector <int>& vec, SDL_Renderer* renderer, int max_value, int stripe_width);
+void renderText(SDL_Renderer* renderer, const string& message, TTF_Font* font, SDL_Color color, int x, int y);
+void drawState(const vector<int>& vec, SDL_Renderer* renderer, int highlight_1, int highlight_2, int max_value, int num_elements);
+void selectionSort(vector<int>& vec, SDL_Renderer* renderer, int max_value, int stripe_width, int num_elements);
+void bubbleSort(vector <int>& vec, SDL_Renderer* renderer, int max_value, int stripe_width, int num_elements);
 void siftDown(vector<int>& vec, int start, int end);
-void heapSort(vector<int>& vec, SDL_Renderer* renderer, int max_value, int stripe_width);
+void heapSort(vector<int>& vec, SDL_Renderer* renderer, int max_value, int stripe_width, int num_elements);
 
 int main()
 {
@@ -55,7 +57,7 @@ int main()
 
   //selectionSort(vec, renderer, range_end, stripe_width);
   //bubbleSort(vec, renderer, range_end, stripe_width);
-  heapSort(vec, renderer, range_end, stripe_width);
+  heapSort(vec, renderer, range_end, stripe_width, num_elements);
 
   SDL_Delay(2000);
 
@@ -66,10 +68,12 @@ int main()
   return 0;
 }
 
-void drawState(const vector<int>& vec, SDL_Renderer* renderer, int highlight_1, int highlight_2, int max_value, int stripe_width)
+void drawState(const vector<int>& vec, SDL_Renderer* renderer, int highlight_1, int highlight_2, int max_value, int num_elements)
 {
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
   SDL_RenderClear(renderer);
+
+  float stripe_width = static_cast<float>(WINDOW_WIDTH) / num_elements;
 
   for(int i = 0; i < vec.size(); i++)
   {
@@ -80,16 +84,16 @@ void drawState(const vector<int>& vec, SDL_Renderer* renderer, int highlight_1, 
     else
       SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
-    int scaled_height = (static_cast<float>(vec[i]) / max_value) * WINDOW_HEIGHT;
-    int x = i * stripe_width;
-    SDL_Rect bar = { x, WINDOW_HEIGHT - scaled_height, stripe_width, scaled_height };
-    SDL_RenderFillRect(renderer, &bar);
+    float scaled_height = (static_cast<float>(vec[i]) / max_value) * WINDOW_HEIGHT;
+    float x = i * stripe_width;
+    SDL_FRect bar = { x, WINDOW_HEIGHT - scaled_height, stripe_width, scaled_height };
+    SDL_RenderFillRectF(renderer, &bar);
   }
 
   SDL_RenderPresent(renderer);
 }
 
-void selectionSort(vector<int>& vec, SDL_Renderer* renderer, int max_value, int stripe_width)
+void selectionSort(vector<int>& vec, SDL_Renderer* renderer, int max_value, int stripe_width, int num_elements)
 {
   for(int i = 0; i < vec.size(); i++)
   {
@@ -103,12 +107,12 @@ void selectionSort(vector<int>& vec, SDL_Renderer* renderer, int max_value, int 
     if(min_index != i)
       swap(vec[i], vec[min_index]);
 
-    drawState(vec, renderer, i, min_index, max_value, stripe_width);
+    drawState(vec, renderer, i, min_index, max_value, num_elements);
     SDL_Delay(10);
   }
 }
 
-void bubbleSort(vector <int>& vec, SDL_Renderer* renderer, int max_value, int stripe_width)
+void bubbleSort(vector <int>& vec, SDL_Renderer* renderer, int max_value, int stripe_width, int num_elements)
 {
   bool swapped;
   int i = vec.size();
@@ -122,14 +126,14 @@ void bubbleSort(vector <int>& vec, SDL_Renderer* renderer, int max_value, int st
         swap(vec[j], vec[j + 1]);
         swapped = true;
       }
-      drawState(vec, renderer, j, j + 1, max_value, stripe_width);
+      drawState(vec, renderer, j, j + 1, max_value, num_elements);
       SDL_Delay(10);
     }
     i--;
   }while(swapped);  
 }
 
-void heapSort(vector<int>& vec, SDL_Renderer* renderer, int max_value, int stripe_width)
+void heapSort(vector<int>& vec, SDL_Renderer* renderer, int max_value, int stripe_width, int num_elements)
 {
   int size = vec.size();
   for(int i = size / 2 - 1; i >= 0; --i)
@@ -139,7 +143,7 @@ void heapSort(vector<int>& vec, SDL_Renderer* renderer, int max_value, int strip
   {
     swap(vec[0], vec[end]);
     siftDown(vec, 0, end);
-    drawState(vec, renderer, 0, end, max_value, stripe_width);
+    drawState(vec, renderer, 0, end, max_value, num_elements);
     SDL_Delay(10);
   }
 } 
@@ -167,4 +171,9 @@ void siftDown(vector<int>& vec, int start, int end)
       root = swap_idx;
     }
   }
+}
+
+void renderText(SDL_Renderer* renderer, const string& message, TTF_Font* font, SDL_Color color, int x, int y)
+{
+  SDL_Surface* surface = TTF_RenderText_Blended(font, message.c_str(), color);
 }
