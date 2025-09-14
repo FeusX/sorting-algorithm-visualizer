@@ -8,6 +8,7 @@ using namespace std;
 const int WINDOW_WIDTH = 1024;
 const int WINDOW_HEIGHT = 768;
 
+char waitForSortKey(SDL_Renderer* renderer, TTF_Font* font);
 void renderText(SDL_Renderer* renderer, const string& message, TTF_Font* font, SDL_Color color, int x, int y);
 void drawState(const vector<int>& vec, SDL_Renderer* renderer, int highlight_1, int highlight_2, int max_value, int num_elements);
 void selectionSort(vector<int>& vec, SDL_Renderer* renderer, int max_value, int stripe_width, int num_elements);
@@ -18,6 +19,7 @@ void heapSort(vector<int>& vec, SDL_Renderer* renderer, int max_value, int strip
 int main()
 {
   SDL_Init(SDL_INIT_VIDEO);
+  TTF_Init();
 
   int num_elements, range_start, range_end;
 
@@ -54,15 +56,32 @@ int main()
   SDL_Window* window = nullptr;
   SDL_Renderer* renderer = nullptr;
   SDL_CreateWindowAndRenderer(WINDOW_WIDTH, WINDOW_HEIGHT, 0, &window, &renderer);
+  TTF_Font* font = TTF_OpenFont("/usr/share/fonts/TTF/CascadiaMono.ttf", 24);
 
-  //selectionSort(vec, renderer, range_end, stripe_width);
-  //bubbleSort(vec, renderer, range_end, stripe_width);
-  heapSort(vec, renderer, range_end, stripe_width, num_elements);
+  char choice = waitForSortKey(renderer, font);
+
+  switch(choice)
+  {
+    case 'h':
+    case 'H':
+      heapSort(vec, renderer, range_end, stripe_width, num_elements);
+      break;
+    case 's':
+    case 'S':
+      selectionSort(vec, renderer, range_end, stripe_width, num_elements);
+      break;
+    case 'b':
+    case 'B':
+      bubbleSort(vec, renderer, range_end, stripe_width, num_elements);
+      break;
+  }
 
   SDL_Delay(2000);
 
+  TTF_CloseFont(font);
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
+  TTF_Quit();
   SDL_Quit();
 
   return 0;
@@ -176,4 +195,35 @@ void siftDown(vector<int>& vec, int start, int end)
 void renderText(SDL_Renderer* renderer, const string& message, TTF_Font* font, SDL_Color color, int x, int y)
 {
   SDL_Surface* surface = TTF_RenderText_Blended(font, message.c_str(), color);
+  SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+  SDL_Rect dst = { x, y, surface->w, surface->h };
+  SDL_RenderCopy(renderer, texture, nullptr, &dst);
+  SDL_FreeSurface(surface);
+  SDL_DestroyTexture(texture);
+}
+
+char waitForSortKey(SDL_Renderer* renderer, TTF_Font* font)
+{
+  SDL_Event e;
+  char choice = '\0';
+
+  SDL_Color white = { 255, 255, 255, 255 };
+  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+  SDL_RenderClear(renderer);
+
+  renderText(renderer, "H = Heap Sort, S = Selection Sort, B = Bubble Sort", font, white, 50, 100);
+  SDL_RenderPresent(renderer);
+
+  while(true)
+  {
+    while(SDL_PollEvent(&e))
+    {
+      if(e.type == SDL_QUIT)
+        exit(0);
+      if(e.type == SDL_KEYDOWN)
+        choice = e.key.keysym.sym;
+        if (choice == 'h' || choice == 'b' || choice == 's')
+          return choice;
+    }
+  }
 }
